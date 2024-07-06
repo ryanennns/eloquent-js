@@ -79,7 +79,13 @@ export class Builder {
 
         const columns = this.#formatSelectColumns();
 
-        return this.queryString = `SELECT ${columns} FROM "${this.table}" WHERE ${constraints}`;
+        let queryString = `SELECT ${columns} FROM "${this.table}"`;
+
+        if (constraints) {
+            queryString += ` WHERE ${constraints}`;
+        }
+
+        return queryString;
     }
 
     #formatSelectColumns() {
