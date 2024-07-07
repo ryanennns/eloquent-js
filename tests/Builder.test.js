@@ -65,7 +65,7 @@ describe("Builder", () => {
         const getBuilder = new Builder();
         let rows = await getBuilder.from("users").where("username", "oogabooga").get();
 
-        rows = rows.rows.map(row => {
+        rows = rows.map(row => {
             return {
                 username: row.username,
                 email: row.email,
@@ -89,7 +89,7 @@ describe("Builder", () => {
         const getBuilder = new Builder();
         let rows = await getBuilder.from("users").where("username", "oogabooga").get();
 
-        rows = rows.rows.map(row => {
+        rows = rows.map(row => {
             return {
                 username: row.username,
                 email: row.email,
@@ -104,7 +104,7 @@ describe("Builder", () => {
 
         rows = await getBuilder.from("users").where("username", expectedUser.username).get();
 
-        rows = rows.rows.map(row => {
+        rows = rows.map(row => {
             return {
                 username: row.username,
                 email: row.email,

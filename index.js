@@ -11,6 +11,6 @@ const q = await DB.table("users")
     .whereIn("status", ["active", "inactive"])
     .get();
 
-console.log(q.rows);
+console.log(q);
 
 await DB.table("users").where("username", "oogabooga").delete();

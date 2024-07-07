@@ -74,7 +74,7 @@ export class Builder {
     }
 
     async get() {
-        return await this.connection.query(this.#structureQuery());
+        return (await this.connection.query(this.#structureQuery())).rows;
     }
 
     async create(args) {
