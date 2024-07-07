@@ -37,6 +37,12 @@ describe("Builder", () => {
         expect(query).toBe(`SELECT * FROM "users" ORDER BY name DESC`);
     });
 
+    test("it adds limit clause to end of query", () => {
+        const builder = new Builder();
+        const query = builder.from("users").limit(10).toSql();
+        expect(query).toBe(`SELECT * FROM "users" LIMIT 10`);
+    });
+
     test("it throws error if unsupported operator used", () => {
         const builder = new Builder();
         expect(() => {

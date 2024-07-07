@@ -14,6 +14,7 @@ export class Builder {
         this.constraints = [];
         this.selectedColumns = [];
         this.orderClause = "";
+        this.limitClause = "";
         this.joinedTables = [];
     }
 
@@ -72,6 +73,12 @@ export class Builder {
         return this;
     }
 
+    limit(limit) {
+        this.limitClause = `LIMIT ${limit}`;
+
+        return this;
+    }
+
     orderBy(column, direction = "ASC") {
         if (!["ASC", "DESC"].includes(direction)) {
             throw new Error("Invalid order direction");
@@ -107,6 +114,10 @@ export class Builder {
 
         if (this.orderClause) {
             queryString += ` ${this.orderClause}`;
+        }
+
+        if (this.limitClause) {
+            queryString += ` ${this.limitClause}`;
         }
 
         return queryString;
