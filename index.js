@@ -1,16 +1,15 @@
-import {DB} from "./src/DB.js";
+import pg from "pg";
 
-await DB.table("users").create({
-    username: "oogabooga",
-    email: `${Math.random()}@oogabooga.com`,
-    status: "active"
+const {Client} = pg;
+
+const db = new Client({
+    user: "postgres",
+    host: "localhost",
+    database: "eloquent-js",
+    password: "asdfasdf",
+    port: 5432
 });
 
-const q = await DB.table("users")
-    .where("username", "oogabooga")
-    .whereIn("status", ["active", "inactive"])
-    .get();
+db.connect();
 
-console.log(q);
-
-await DB.table("users").where("username", "oogabooga").delete();
+db.end()

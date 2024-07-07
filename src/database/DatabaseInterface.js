@@ -1,19 +1,28 @@
 import pg from "pg";
 
 const {Client} = pg;
+const connectionDetails = {
+    user: "postgres",
+    host: "localhost",
+    database: "eloquent-js",
+    password: "asdfasdf",
+    port: 5432
+};
 
 // todo make abstract & make connectors for MySQL, PostgreSQL, SQLite, etc.
 export class DatabaseInterface {
     constructor() {
-        this.db = new Client({
-            user: "postgres",
-            host: "localhost",
-            database: "eloquent-js",
-            password: "asdfasdf",
-            port: 5432
-        });
+        this.db = null;
+    }
 
-        this.db.connect();
+    async connect() {
+        this.db = new Client(connectionDetails);
+        await this.db.connect();
+    }
+
+    async disconnect() {
+        await this.db.end();
+        this.db = new Client(connectionDetails);
     }
 
     async query(queryString) {

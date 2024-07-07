@@ -90,15 +90,15 @@ export class Builder {
     }
 
     async get() {
-        return (await this.connection.query(this.#structureQuery())).rows;
+        return (await this.#executeQuery(this.#structureQuery())).rows;
     }
 
     async create(args) {
-        return await this.connection.query(this.#structureCreateQuery(args));
+        return await this.#executeQuery(this.#structureCreateQuery(args));
     }
 
     async delete() {
-        return await this.connection.query(this.#structureDeleteQuery());
+        return await this.#executeQuery(this.#structureDeleteQuery());
     }
 
     #structureQuery() {
@@ -151,6 +151,16 @@ export class Builder {
         const constraints = this.#formatConstraints();
 
         return `DELETE FROM "${this.table}" WHERE ${constraints}`;
+    }
+
+    async #executeQuery(queryString) {
+        await this.connection.connect();
+
+        const connectionReturnValue = await this.connection.query(queryString);
+
+        await this.connection.disconnect();
+
+        return connectionReturnValue;
     }
 
     toSql() {
