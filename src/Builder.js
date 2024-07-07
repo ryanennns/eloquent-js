@@ -8,14 +8,13 @@ const supportedOperators = [
 ];
 
 export class Builder {
-
     constructor() {
         this.connection = new DatabaseInterface();
-        this.joinedTables = [];
+        this.table = "";
         this.constraints = [];
         this.selectedColumns = [];
-        this.table = "";
-        this.queryString = "";
+        this.orderClause = "";
+        this.joinedTables = [];
     }
 
     from(table) {
@@ -73,6 +72,16 @@ export class Builder {
         return this;
     }
 
+    orderBy(column, direction = "ASC") {
+        if (!["ASC", "DESC"].includes(direction)) {
+            throw new Error("Invalid order direction");
+        }
+
+        this.orderClause = `ORDER BY ${column} ${direction}`;
+
+        return this;
+    }
+
     async get() {
         return (await this.connection.query(this.#structureQuery())).rows;
     }
@@ -94,6 +103,10 @@ export class Builder {
 
         if (constraints) {
             queryString += ` WHERE ${constraints}`;
+        }
+
+        if (this.orderClause) {
+            queryString += ` ${this.orderClause}`;
         }
 
         return queryString;

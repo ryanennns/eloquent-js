@@ -2,6 +2,7 @@ import pg from "pg";
 
 const {Client} = pg;
 
+// todo make abstract & make connectors for MySQL, PostgreSQL, SQLite, etc.
 export class DatabaseInterface {
     constructor() {
         this.db = new Client({
