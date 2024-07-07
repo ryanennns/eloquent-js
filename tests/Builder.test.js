@@ -30,4 +30,88 @@ describe("Builder", () => {
         const query = builder.from("users").select("name", "email").toSql();
         expect(query).toBe(`SELECT name, email FROM "users"`);
     });
+
+    test("it throws error if unsupported operator used", () => {
+        const builder = new Builder();
+        expect(() => {
+            builder.from("users").where("id", "poop", 1).toSql();
+        }).toThrowError("Invalid operator");
+    });
+
+    test("it throws error if too few number of arguments passed to where", () => {
+        const builder = new Builder();
+        expect(() => {
+            builder.from("users").where("id").toSql();
+        }).toThrowError("Invalid number of arguments");
+    });
+
+    test("it throws error if too many number of arguments passed to where", () => {
+        const builder = new Builder();
+        expect(() => {
+            builder.from("users").where("id", "=", 1, 2).toSql();
+        }).toThrowError("Invalid number of arguments");
+    });
+
+    test("it gets rows from database", async () => {
+        const expectedUser = {
+            username: "oogabooga",
+            email: `${Math.random()}@oogabooga.com`,
+            status: "active"
+        };
+
+        const createBuilder = new Builder();
+        await createBuilder.from("users").create(expectedUser);
+
+        const getBuilder = new Builder();
+        let rows = await getBuilder.from("users").where("username", "oogabooga").get();
+
+        rows = rows.rows.map(row => {
+            return {
+                username: row.username,
+                email: row.email,
+                status: row.status,
+            };
+        });
+
+        expect(rows).toContainEqual(expectedUser);
+    });
+
+    test("it deletes rows from database", async () => {
+        const expectedUser = {
+            username: "oogabooga",
+            email: `${Math.random()}@oogabooga.com`,
+            status: "active"
+        };
+
+        const createBuilder = new Builder();
+        await createBuilder.from("users").create(expectedUser);
+
+        const getBuilder = new Builder();
+        let rows = await getBuilder.from("users").where("username", "oogabooga").get();
+
+        rows = rows.rows.map(row => {
+            return {
+                username: row.username,
+                email: row.email,
+                status: row.status,
+            };
+        });
+
+        expect(rows).toContainEqual(expectedUser);
+
+        const deleteBuilder = new Builder();
+        await deleteBuilder.from("users").where("username", expectedUser.username).delete();
+
+        rows = await getBuilder.from("users").where("username", expectedUser.username).get();
+
+        rows = rows.rows.map(row => {
+            return {
+                username: row.username,
+                email: row.email,
+                status: row.status,
+            };
+        });
+
+        expect(rows).not.toContainEqual(expectedUser);
+    });
 });

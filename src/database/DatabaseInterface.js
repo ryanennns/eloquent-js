@@ -1,4 +1,5 @@
 import pg from "pg";
+
 const {Client} = pg;
 
 export class DatabaseInterface {
@@ -11,13 +12,10 @@ export class DatabaseInterface {
             port: 5432
         });
 
-        this.db.connect()
+        this.db.connect();
     }
 
     async query(queryString) {
-
-        await this.db.query(queryString).then((res) => {
-            console.log(res);
-        });
+        return await this.db.query(queryString);
     }
 }

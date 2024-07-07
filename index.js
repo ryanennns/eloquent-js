@@ -1,14 +1,16 @@
 import {DB} from "./src/DB.js";
-import {DatabaseInterface} from "./src/database/DatabaseInterface.js";
 
-const q = DB.table("users")
+await DB.table("users").create({
+    username: "oogabooga",
+    email: `${Math.random()}@oogabooga.com`,
+    status: "active"
+});
+
+const q = await DB.table("users")
     .where("username", "oogabooga")
-    .where("id", ">", 5)
-    .whereIn("status", ["active", "inactive", 4])
-    .select("id")
-    .toSql();
+    .whereIn("status", ["active", "inactive"])
+    .get();
 
-console.log(q);
+console.log(q.rows);
 
-// const db = new DatabaseInterface();
-// await db.query(q);
+await DB.table("users").where("username", "oogabooga").delete();

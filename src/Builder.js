@@ -1,3 +1,5 @@
+import {DatabaseInterface} from "./database/DatabaseInterface.js";
+
 const supportedOperators = [
     "=",
     "!=",
@@ -8,6 +10,7 @@ const supportedOperators = [
 export class Builder {
 
     constructor() {
+        this.connection = new DatabaseInterface();
         this.joinedTables = [];
         this.constraints = [];
         this.selectedColumns = [];
@@ -22,7 +25,7 @@ export class Builder {
     }
 
     where(...args) {
-        if (args.length > 3) {
+        if (args.length > 3 || args.length <= 1) {
             throw new Error("Invalid number of arguments");
         }
 
@@ -70,8 +73,16 @@ export class Builder {
         return this;
     }
 
-    create() {
+    async get() {
+        return await this.connection.query(this.#structureQuery());
+    }
 
+    async create(args) {
+        return await this.connection.query(this.#structureCreateQuery(args));
+    }
+
+    async delete() {
+        return await this.connection.query(this.#structureDeleteQuery());
     }
 
     #structureQuery() {
@@ -103,6 +114,19 @@ export class Builder {
 
             return `"${constraint.column}" ${constraint.operator} ${constraint.value}`;
         }).join(" AND ");
+    }
+
+    #structureCreateQuery(args) {
+        const keys = Object.keys(args);
+        const values = Object.values(args).map(value => typeof value === "string" ? `'${value}'` : value);
+
+        return `INSERT INTO "${this.table}" (${keys.join(", ")}) VALUES (${values.join(", ")})`;
+    }
+
+    #structureDeleteQuery() {
+        const constraints = this.#formatConstraints();
+
+        return `DELETE FROM "${this.table}" WHERE ${constraints}`;
     }
 
     toSql() {
