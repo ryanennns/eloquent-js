@@ -4,8 +4,8 @@ const {Client} = pg;
 const connectionDetails = {
     user: "postgres",
     host: "localhost",
-    database: "eloquent-js",
-    password: "asdfasdf",
+    database: "postgres",
+    password: "",
     port: 5432
 };
 

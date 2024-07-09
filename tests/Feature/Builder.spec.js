@@ -28,7 +28,7 @@ describe("Builder", () => {
     test("it selects specific columns", () => {
         const builder = new Builder();
         const query = builder.from("users").select("name", "email").toSql();
-        expect(query).toBe(`SELECT name, email FROM "users"`);
+        expect(query).toBe(`SELECT "name", "email" FROM "users"`);
     });
 
     test("it adds order clause to end of query", () => {
@@ -41,6 +41,24 @@ describe("Builder", () => {
         const builder = new Builder();
         const query = builder.from("users").limit(10).toSql();
         expect(query).toBe(`SELECT * FROM "users" LIMIT 10`);
+    });
+
+    test("it joins tables", () => {
+        const builder = new Builder();
+        const query = builder.from("snickers").join("Marsbars", "Marsbars.sugarGrams", '=', "snickers.sugarGrams").toSql();
+        expect(query).toBe(`SELECT * FROM "snickers" INNER JOIN "Marsbars" ON "Marsbars"."sugarGrams" = "snickers"."sugarGrams"`);
+    });
+
+    test("it assembles select, where, order, limit, and join clauses correctly", () => {
+        const builder = new Builder();
+        const query = builder.from("snickers")
+            .join("Marsbars", "Marsbars.sugarGrams", '=', "snickers.sugarGrams")
+            .where("ooga", "booga")
+            .select("sugarGrams", "calories")
+            .orderBy("sugarGrams")
+            .limit(4)
+            .toSql();
+        expect(query).toBe(`SELECT "sugarGrams", "calories" FROM "snickers" INNER JOIN "Marsbars" ON "Marsbars"."sugarGrams" = "snickers"."sugarGrams" WHERE "ooga" = "booga" ORDER BY "sugarGrams" ASC LIMIT 4`)
     });
 
     test("it throws error if unsupported operator used", () => {

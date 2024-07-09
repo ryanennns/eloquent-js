@@ -84,7 +84,27 @@ export class Builder {
             throw new Error("Invalid order direction");
         }
 
-        this.orderClause = `ORDER BY ${column} ${direction}`;
+        this.orderClause = `ORDER BY "${column}" ${direction}`;
+
+        return this;
+    }
+
+    join(
+        table,
+        column1,
+        operator,
+        column2,
+        type = "INNER",
+        where = true,
+    ) {
+        this.joinedTables.push({
+            table,
+            column1,
+            operator,
+            column2,
+            type,
+            where,
+        });
 
         return this;
     }
@@ -108,6 +128,14 @@ export class Builder {
 
         let queryString = `SELECT ${columns} FROM "${this.table}"`;
 
+        this.joinedTables.forEach(joinedTable => {
+
+            let column1 = joinedTable.column1.split('.').map((item) => `"${item}"`).join('.');
+            let column2 = joinedTable.column2.split('.').map((item) => `"${item}"`).join('.');
+
+            queryString += ` ${joinedTable.type} JOIN "${joinedTable.table}" ON ${column1} ${joinedTable.operator} ${column2}`;
+        });
+
         if (constraints) {
             queryString += ` WHERE ${constraints}`;
         }
@@ -120,11 +148,13 @@ export class Builder {
             queryString += ` ${this.limitClause}`;
         }
 
+
         return queryString;
     }
 
     #formatSelectColumns() {
-        return this.selectedColumns.length ? this.selectedColumns.join(", ") : "*";
+
+        return this.selectedColumns.length ? this.selectedColumns.map((item) => `"${item}"`).join(", ") : "*";
     }
 
     #formatConstraints() {
@@ -133,6 +163,9 @@ export class Builder {
                 typeof constraint.value == "string"
                 && constraint.operator !== "IN"
             ) {
+                if (this.joinedTables.length > 0) {
+                    return `"${constraint.column}" ${constraint.operator} "${constraint.value}"`;
+                }
                 return `"${constraint.column}" ${constraint.operator} '${constraint.value}'`;
             }
 
@@ -144,13 +177,16 @@ export class Builder {
         const keys = Object.keys(args);
         const values = Object.values(args).map(value => typeof value === "string" ? `'${value}'` : value);
 
-        return `INSERT INTO "${this.table}" (${keys.join(", ")}) VALUES (${values.join(", ")})`;
+        return `INSERT INTO "${this.table}" (${keys.join(", ")})
+                VALUES (${values.join(", ")})`;
     }
 
     #structureDeleteQuery() {
         const constraints = this.#formatConstraints();
 
-        return `DELETE FROM "${this.table}" WHERE ${constraints}`;
+        return `DELETE
+                FROM "${this.table}"
+                WHERE ${constraints}`;
     }
 
     async #executeQuery(queryString) {
