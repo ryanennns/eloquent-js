@@ -1,4 +1,16 @@
 # `eloquent-js`
 
-I'm a big fan of Laravel's eloquent ORM. Why not try to implement a 1:1 clone
-of it in JavaScript?
+`eloquent-js` is a simple and lightweight query builder for JavaScript, based off of Laravel's *Eloquent ORM*.
+
+```javascript
+import { Builder } from 'eloquent-js';
+
+const builder = new Builder();
+
+const users = builder.table('users')
+    .select('name', 'email', 'address_id')
+    .where('email', 'john@doe.com')
+    .orderBy('name', 'asc')
+    .limit(3)
+    .get();
+```
