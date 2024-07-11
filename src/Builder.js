@@ -1,4 +1,5 @@
 import {DatabaseInterface} from "./database/DatabaseInterface.js";
+import {PostgresGrammar} from "./Grammars/PostgresGrammar.js";
 
 const supportedOperators = [
     "=",
@@ -10,12 +11,15 @@ const supportedOperators = [
 export class Builder {
     constructor() {
         this.connection = new DatabaseInterface();
+        this.grammar = new PostgresGrammar();
+
         this.table = "";
         this.constraints = [];
         this.selectedColumns = [];
         this.orderClause = "";
         this.limitClause = "";
         this.joinedTables = [];
+        this.createKeysAndValues = [];
     }
 
     from(table) {
@@ -109,84 +113,38 @@ export class Builder {
         return this;
     }
 
+    async first() {
+        try {
+            return (await this.#executeQuery(this.grammar.structureSelectQuery(this))).rows[0];
+        } catch (error) {
+            return null;
+        }
+    }
+
+    async find(id, columns = ["*"]) {
+        this.constraints.push({
+            column: "id",
+            operator: "=",
+            value: id
+        });
+
+        this.selectedColumns = columns;
+
+        return await this.first();
+    }
+
     async get() {
-        return (await this.#executeQuery(this.#structureQuery())).rows;
+        return (await this.#executeQuery(this.#selectQuery())).rows;
     }
 
     async create(args) {
-        return await this.#executeQuery(this.#structureCreateQuery(args));
+        this.createKeysAndValues = args;
+
+        return await this.#executeQuery(this.#createQuery());
     }
 
     async delete() {
-        return await this.#executeQuery(this.#structureDeleteQuery());
-    }
-
-    #structureQuery() {
-        const constraints = this.#formatConstraints();
-
-        const columns = this.#formatSelectColumns();
-
-        let queryString = `SELECT ${columns} FROM "${this.table}"`;
-
-        this.joinedTables.forEach(joinedTable => {
-
-            let column1 = joinedTable.column1.split('.').map((item) => `"${item}"`).join('.');
-            let column2 = joinedTable.column2.split('.').map((item) => `"${item}"`).join('.');
-
-            queryString += ` ${joinedTable.type} JOIN "${joinedTable.table}" ON ${column1} ${joinedTable.operator} ${column2}`;
-        });
-
-        if (constraints) {
-            queryString += ` WHERE ${constraints}`;
-        }
-
-        if (this.orderClause) {
-            queryString += ` ${this.orderClause}`;
-        }
-
-        if (this.limitClause) {
-            queryString += ` ${this.limitClause}`;
-        }
-
-
-        return queryString;
-    }
-
-    #formatSelectColumns() {
-
-        return this.selectedColumns.length ? this.selectedColumns.map((item) => `"${item}"`).join(", ") : "*";
-    }
-
-    #formatConstraints() {
-        return this.constraints.map(constraint => {
-            if (
-                typeof constraint.value == "string"
-                && constraint.operator !== "IN"
-            ) {
-                if (this.joinedTables.length > 0) {
-                    return `"${constraint.column}" ${constraint.operator} "${constraint.value}"`;
-                }
-                return `"${constraint.column}" ${constraint.operator} '${constraint.value}'`;
-            }
-
-            return `"${constraint.column}" ${constraint.operator} ${constraint.value}`;
-        }).join(" AND ");
-    }
-
-    #structureCreateQuery(args) {
-        const keys = Object.keys(args);
-        const values = Object.values(args).map(value => typeof value === "string" ? `'${value}'` : value);
-
-        return `INSERT INTO "${this.table}" (${keys.join(", ")})
-                VALUES (${values.join(", ")})`;
-    }
-
-    #structureDeleteQuery() {
-        const constraints = this.#formatConstraints();
-
-        return `DELETE
-                FROM "${this.table}"
-                WHERE ${constraints}`;
+        return await this.#executeQuery(this.#deleteQuery());
     }
 
     async #executeQuery(queryString) {
@@ -200,6 +158,18 @@ export class Builder {
     }
 
     toSql() {
-        return this.#structureQuery();
+        return this.grammar.structureSelectQuery(this);
+    }
+
+    #selectQuery() {
+        return this.grammar.structureSelectQuery(this);
+    }
+
+    #createQuery() {
+        return this.grammar.structureCreateQuery(this);
+    }
+
+    #deleteQuery() {
+        return this.grammar.structureDeleteQuery();
     }
 }

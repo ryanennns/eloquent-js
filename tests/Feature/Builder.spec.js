@@ -34,7 +34,7 @@ describe("Builder", () => {
     test("it adds order clause to end of query", () => {
         const builder = new Builder();
         const query = builder.from("users").orderBy("name", "DESC").toSql();
-        expect(query).toBe(`SELECT * FROM "users" ORDER BY name DESC`);
+        expect(query).toBe(`SELECT * FROM "users" ORDER BY "name" DESC`);
     });
 
     test("it adds limit clause to end of query", () => {
