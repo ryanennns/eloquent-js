@@ -3,18 +3,6 @@ import {Grammar} from "./Grammar.js";
 export class PostgresGrammar extends Grammar {
     constructor() {
         super();
-        this.supportedOperators = [
-            "=",
-            "!=",
-            ">",
-            "<",
-        ];
-    }
-
-    validateOperator(operator) {
-        if (!this.supportedOperators.includes(operator)) {
-            throw new Error("Invalid operator");
-        }
     }
 
     structureCreateQuery(builder) {
@@ -34,7 +22,6 @@ export class PostgresGrammar extends Grammar {
         let queryString = `SELECT ${columns} FROM "${builder.table}"`;
 
         builder.joinedTables.forEach(joinedTable => {
-
             let column1 = joinedTable.column1.split(".").map((item) => `"${item}"`).join(".");
             let column2 = joinedTable.column2.split(".").map((item) => `"${item}"`).join(".");
 
