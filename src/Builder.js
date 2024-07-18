@@ -122,6 +122,51 @@ export class Builder {
         return this;
     }
 
+    leftJoin(
+        table,
+        column1,
+        operator,
+        column2,
+    ) {
+        return this.join(table, column1, operator, column2, "LEFT");
+    }
+
+    rightJoin(
+        table,
+        column1,
+        operator,
+        column2,
+    ) {
+        return this.join(table, column1, operator, column2, "RIGHT");
+    }
+
+    fullJoin(
+        table,
+        column1,
+        operator,
+        column2,
+    ) {
+        return this.join(table, column1, operator, column2, "FULL");
+    }
+
+    innerJoin(
+        table,
+        column1,
+        operator,
+        column2,
+    ) {
+        return this.join(table, column1, operator, column2, "INNER");
+    }
+
+    crossJoin(
+        table,
+        column1,
+        operator,
+        column2,
+    ) {
+        return this.join(table, column1, operator, column2, "CROSS");
+    }
+
     distinct() {
         this.isDistinct = true;
 

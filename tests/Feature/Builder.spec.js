@@ -109,4 +109,35 @@ describe("Builder", () => {
 
         expect(query).toBe(`SELECT DISTINCT * FROM "users"`);
     });
+
+    [
+        {
+            functionName: "leftJoin",
+            join: "LEFT",
+        },
+        {
+            functionName: "rightJoin",
+            join: "RIGHT",
+        },
+        {
+            functionName: "fullJoin",
+            join: "FULL",
+        },
+        {
+            functionName: "innerJoin",
+            join: "INNER",
+        },
+        {
+            functionName: "crossJoin",
+            join: "CROSS",
+        },
+    ].forEach((joinType) => {
+        test("it joins tables with " + joinType.join + " join", () => {
+            const builder = new Builder();
+            const query = builder.from("snickers")[joinType.functionName]("Marsbars", "Marsbars.sugarGrams", "=", "snickers.sugarGrams").toSql();
+
+            expect(query)
+                .toBe(`SELECT * FROM "snickers" ${joinType.join} JOIN "Marsbars" ON "Marsbars"."sugarGrams" = "snickers"."sugarGrams"`);
+        });
+    });
 });
