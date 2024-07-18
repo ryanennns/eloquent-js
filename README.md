@@ -1,11 +1,11 @@
-# `eloquent-js`
+# `eloquent-db`
 
-`eloquent-js` is a simple and lightweight query builder for JavaScript, based on the syntax of  Laravel's *Eloquent ORM*.
+`eloquent-db` is a simple and lightweight query builder for JavaScript, based on the syntax of  Laravel's *Eloquent ORM*.
 
 One can build a query like so:
 
 ```javascript
-import { Builder } from 'eloquent-js';
+import { Builder } from 'eloquent-db';
 
 const builder = new Builder();
 
