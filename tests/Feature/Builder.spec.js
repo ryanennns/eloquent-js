@@ -140,4 +140,11 @@ describe("Builder", () => {
                 .toBe(`SELECT * FROM "snickers" ${joinType.join} JOIN "Marsbars" ON "Marsbars"."sugarGrams" = "snickers"."sugarGrams"`);
         });
     });
+
+    test("it adds select columns to query", () => {
+        const builder = new Builder();
+        const query = builder.from("users").select("name", "email").addSelect("age").toSql();
+
+        expect(query).toBe(`SELECT "name", "email", "age" FROM "users"`);
+    });
 });

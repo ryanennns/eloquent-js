@@ -78,6 +78,12 @@ export class Builder {
         return this;
     }
 
+    addSelect(column) {
+        this.selectedColumns.push(column);
+
+        return this;
+    }
+
     limit(limit) {
         this.limitClause = `LIMIT ${limit}`;
 
