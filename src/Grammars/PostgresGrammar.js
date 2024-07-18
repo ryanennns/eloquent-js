@@ -19,7 +19,13 @@ export class PostgresGrammar extends Grammar {
 
         const columns = this.#formatSelectColumns(builder);
 
-        let queryString = `SELECT ${columns} FROM "${builder.table}"`;
+        let queryString = `SELECT `;
+
+        if (builder.isDistinct) {
+            queryString += "DISTINCT ";
+        }
+
+        queryString += `${columns} FROM "${builder.table}"`;
 
         builder.joinedTables.forEach(joinedTable => {
             let column1 = joinedTable.column1.split(".").map((item) => `"${item}"`).join(".");

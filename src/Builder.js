@@ -14,6 +14,7 @@ export class Builder {
         this.grammar = new PostgresGrammar();
 
         this.table = "";
+        this.isDistinct = false;
         this.constraints = [];
         this.selectedColumns = [];
         this.orderClause = "";
@@ -93,6 +94,14 @@ export class Builder {
         return this;
     }
 
+    orderByDesc(column) {
+        return this.orderBy(column, "DESC");
+    }
+
+    orderByAsc(column) {
+        return this.orderBy(column, "ASC");
+    }
+
     join(
         table,
         column1,
@@ -111,6 +120,16 @@ export class Builder {
         });
 
         return this;
+    }
+
+    distinct() {
+        this.isDistinct = true;
+
+        return this;
+    }
+
+    toSql() {
+        return this.grammar.structureSelectQuery(this);
     }
 
     async first() {
@@ -155,10 +174,6 @@ export class Builder {
         await this.connection.disconnect();
 
         return connectionReturnValue;
-    }
-
-    toSql() {
-        return this.grammar.structureSelectQuery(this);
     }
 
     #selectQuery() {

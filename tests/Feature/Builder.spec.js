@@ -45,20 +45,20 @@ describe("Builder", () => {
 
     test("it joins tables", () => {
         const builder = new Builder();
-        const query = builder.from("snickers").join("Marsbars", "Marsbars.sugarGrams", '=', "snickers.sugarGrams").toSql();
+        const query = builder.from("snickers").join("Marsbars", "Marsbars.sugarGrams", "=", "snickers.sugarGrams").toSql();
         expect(query).toBe(`SELECT * FROM "snickers" INNER JOIN "Marsbars" ON "Marsbars"."sugarGrams" = "snickers"."sugarGrams"`);
     });
 
     test("it assembles select, where, order, limit, and join clauses correctly", () => {
         const builder = new Builder();
         const query = builder.from("snickers")
-            .join("Marsbars", "Marsbars.sugarGrams", '=', "snickers.sugarGrams")
+            .join("Marsbars", "Marsbars.sugarGrams", "=", "snickers.sugarGrams")
             .where("ooga", "booga")
             .select("sugarGrams", "calories")
             .orderBy("sugarGrams")
             .limit(4)
             .toSql();
-        expect(query).toBe(`SELECT "sugarGrams", "calories" FROM "snickers" INNER JOIN "Marsbars" ON "Marsbars"."sugarGrams" = "snickers"."sugarGrams" WHERE "ooga" = "booga" ORDER BY "sugarGrams" ASC LIMIT 4`)
+        expect(query).toBe(`SELECT "sugarGrams", "calories" FROM "snickers" INNER JOIN "Marsbars" ON "Marsbars"."sugarGrams" = "snickers"."sugarGrams" WHERE "ooga" = "booga" ORDER BY "sugarGrams" ASC LIMIT 4`);
     });
 
     test("it throws error if unsupported operator used", () => {
@@ -87,5 +87,26 @@ describe("Builder", () => {
         expect(() => {
             builder.from("users").where("id", "=", 1, 2).toSql();
         }).toThrowError("Invalid number of arguments");
+    });
+
+    test("it orders by descending", () => {
+        const builder = new Builder();
+        const query = builder.from("users").orderByDesc("name").toSql();
+
+        expect(query).toBe(`SELECT * FROM "users" ORDER BY "name" DESC`);
+    });
+
+    test("it orders by ascending", () => {
+        const builder = new Builder();
+        const query = builder.from("users").orderByAsc("name").toSql();
+
+        expect(query).toBe(`SELECT * FROM "users" ORDER BY "name" ASC`);
+    });
+
+    test("it enforces distinct", () => {
+        const builder = new Builder();
+        const query = builder.from("users").distinct().toSql();
+
+        expect(query).toBe(`SELECT DISTINCT * FROM "users"`);
     });
 });
