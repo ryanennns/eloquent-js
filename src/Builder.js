@@ -30,7 +30,7 @@ export class Builder {
     }
 
     where(...args) {
-        if (args.length > 3 || args.length <= 1) {
+        if (args.length > 4 || args.length < 2) {
             throw new Error("Invalid number of arguments");
         }
 
@@ -40,12 +40,15 @@ export class Builder {
             this.constraints.push({
                 column,
                 operator: "=",
-                value: args[1]
+                value: args[1],
+                not: false,
             });
         }
 
-        if (args.length === 3) {
+        if (args.length >= 3) {
             let operator = args[1];
+            let not = args[3] ?? false;
+
             if (!supportedOperators.includes(operator)) {
                 throw new Error("Invalid operator");
             }
@@ -53,8 +56,25 @@ export class Builder {
             this.constraints.push({
                 column,
                 operator,
-                value: args[2]
+                value: args[2],
+                not,
             });
+        }
+
+        return this;
+    }
+
+    whereNot(...args) {
+        if (args.length > 3) {
+            throw new Error("Invalid number of arguments");
+        }
+
+        if (args.length === 3) {
+            this.where(args[0], args[1], args[2], true);
+        }
+
+        if (args.length === 2) {
+            this.where(args[0], "=", args[1], true);
         }
 
         return this;

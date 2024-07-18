@@ -56,16 +56,20 @@ export class PostgresGrammar extends Grammar {
 
     #formatConstraints(builder) {
         return builder.constraints.map(constraint => {
+            let value = constraint.value;
+
             if (
                 typeof constraint.value == "string"
                 && constraint.operator !== "IN"
             ) {
-                return builder.joinedTables.length > 0 ?
-                    `"${constraint.column}" ${constraint.operator} "${constraint.value}"` :
-                    `"${constraint.column}" ${constraint.operator} '${constraint.value}'`;
+                value = builder.joinedTables.length > 0 ?
+                    `"${constraint.value}"` :
+                    `'${constraint.value}'`;
             }
 
-            return `"${constraint.column}" ${constraint.operator} ${constraint.value}`;
+            let queryString = constraint.not ? "NOT " : "";
+
+            return (queryString += `"${constraint.column}" ${constraint.operator} ${value}`);
         }).join(" AND ");
     }
 

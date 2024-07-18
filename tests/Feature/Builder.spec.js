@@ -85,7 +85,7 @@ describe("Builder", () => {
     test("it throws error if too many number of arguments passed to where", () => {
         const builder = new Builder();
         expect(() => {
-            builder.from("users").where("id", "=", 1, 2).toSql();
+            builder.from("users").where("id", "=", 1, 2, 3).toSql();
         }).toThrowError("Invalid number of arguments");
     });
 
@@ -147,4 +147,31 @@ describe("Builder", () => {
 
         expect(query).toBe(`SELECT "name", "email", "age" FROM "users"`);
     });
+
+    test("it formats where not statements", () => {
+        const builder = new Builder();
+        const query = builder.from("snickers").whereNot("calories", ">", 200).toSql();
+
+        expect(query).toBe(`SELECT * FROM "snickers" WHERE NOT "calories" > 200`);
+    });
+
+    test("it organizes where and where not statements correctly when where is before whereNot", () => {
+        const builder = new Builder();
+        const query = builder.from("snickers")
+            .where("calories", ">", 100)
+            .whereNot("calories", ">", 200)
+            .toSql();
+
+        expect(query).toBe(`SELECT * FROM "snickers" WHERE "calories" > 100 AND NOT "calories" > 200`);
+    });
+
+    test("it organizes where and where not statements correctly when whereNot is before where", () => {
+        const builder = new Builder();
+        const query = builder.from("snickers")
+            .whereNot("calories", ">", 200)
+            .where("calories", ">", 100)
+            .toSql();
+
+        expect(query).toBe(`SELECT * FROM "snickers" WHERE NOT "calories" > 200 AND "calories" > 100`);
+    })
 });
