@@ -60,10 +60,9 @@ export class PostgresGrammar extends Grammar {
                 typeof constraint.value == "string"
                 && constraint.operator !== "IN"
             ) {
-                if (builder.joinedTables.length > 0) {
-                    return `"${constraint.column}" ${constraint.operator} "${constraint.value}"`;
-                }
-                return `"${constraint.column}" ${constraint.operator} '${constraint.value}'`;
+                return builder.joinedTables.length > 0 ?
+                    `"${constraint.column}" ${constraint.operator} "${constraint.value}"` :
+                    `"${constraint.column}" ${constraint.operator} '${constraint.value}'`;
             }
 
             return `"${constraint.column}" ${constraint.operator} ${constraint.value}`;
