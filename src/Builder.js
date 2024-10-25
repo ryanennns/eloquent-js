@@ -223,14 +223,18 @@ export class Builder {
         return await this.first();
     }
 
-    async get() {
-        return (await this.#executeQuery(this.#selectQuery())).rows;
-    }
-
     async create(args) {
         this.createKeysAndValues = args;
 
         return await this.#executeQuery(this.#createQuery());
+    }
+
+    async get() {
+        return (await this.#executeQuery(this.#selectQuery())).rows;
+    }
+
+    async update(newValues) {
+        return await this.#executeQuery(this.#updateQuery(newValues));
     }
 
     async delete() {
@@ -247,12 +251,16 @@ export class Builder {
         return connectionReturnValue;
     }
 
+    #createQuery() {
+        return this.grammar.structureCreateQuery(this);
+    }
+
     #selectQuery() {
         return this.grammar.structureSelectQuery(this);
     }
 
-    #createQuery() {
-        return this.grammar.structureCreateQuery(this);
+    #updateQuery(newValues) {
+        return this.grammar.structureUpdateQuery(this, newValues);
     }
 
     #deleteQuery() {

@@ -73,9 +73,20 @@ export class PostgresGrammar extends Grammar {
         }).join(" AND ");
     }
 
+    structureUpdateQuery(builder, newValues) {
+        const constraints = this.#formatConstraints(builder);
+        const updatedValues = this.#formatUpdatedValues(newValues);
+
+        return `UPDATE "${builder.table}" SET ${updatedValues} WHERE ${constraints}`;
+    }
+
     structureDeleteQuery(builder) {
         const constraints = this.#formatConstraints(builder);
 
         return `DELETE FROM "${builder.table}" WHERE ${constraints}`;
+    }
+
+    #formatUpdatedValues(newValues) {
+        return Object.keys(newValues).map((key) => `"${key}" = '${newValues[key]}'`).join(", ");
     }
 }

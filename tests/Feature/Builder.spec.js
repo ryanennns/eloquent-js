@@ -174,4 +174,21 @@ describe("Builder", () => {
 
         expect(query).toBe(`SELECT * FROM "snickers" WHERE NOT "calories" > 200 AND "calories" > 100`);
     })
+
+    test("It structures update query correctly", async () => {
+        const expectedQuery = "UPDATE \"some_table\" SET \"name\" = 'oogabooga' WHERE \"id\" = 1";
+
+        const mockConnection = {
+            connect: jest.fn().mockResolvedValue(true),
+            disconnect: jest.fn().mockResolvedValue(true),
+            query: jest.fn().mockResolvedValue({})
+        };
+
+        const builder = new Builder();
+        builder.connection = mockConnection;
+
+        await builder.from("some_table").where("id", 1).update({name: "oogabooga"});
+
+        expect(mockConnection.query).toHaveBeenCalledWith(expectedQuery);
+    });
 });
