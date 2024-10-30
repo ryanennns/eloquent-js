@@ -61,10 +61,19 @@ export class PostgresGrammar extends Grammar {
             if (
                 typeof constraint.value == "string"
                 && constraint.operator !== "IN"
+                && value !== "NULL"
             ) {
                 value = builder.joinedTables.length > 0 ?
                     `"${constraint.value}"` :
                     `'${constraint.value}'`;
+            }
+
+            if (constraint.value === "NULL") {
+                constraint.operator = constraint.operator === "=" ? "IS" : "IS NOT";
+            }
+
+            if (constraint.operator === 'like') {
+                constraint.operator = 'LIKE';
             }
 
             let queryString = constraint.not ? "NOT " : "";

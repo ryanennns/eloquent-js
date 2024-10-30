@@ -6,12 +6,15 @@ const supportedOperators = [
     "!=",
     ">",
     "<",
+    ">=",
+    "<=",
+    "like",
 ];
 
 export class Builder {
-    constructor() {
-        this.connection = new DatabaseInterface();
-        this.grammar = new PostgresGrammar();
+    constructor(databaseInterface = null, grammar= null) {
+        this.connection = databaseInterface ?? new DatabaseInterface();
+        this.grammar = grammar ?? new PostgresGrammar();
 
         this.table = "";
         this.isDistinct = false;
@@ -90,6 +93,10 @@ export class Builder {
         });
 
         return this;
+    }
+
+    whereNotNull(column) {
+        return this.where(column, '!=', 'NULL');
     }
 
     select(...columns) {
@@ -249,6 +256,12 @@ export class Builder {
         await this.connection.disconnect();
 
         return connectionReturnValue;
+    }
+
+    async each(callback) {
+        const results = await this.get();
+
+        results.forEach(callback);
     }
 
     #createQuery() {

@@ -192,3 +192,16 @@ describe("Builder", () => {
         expect(mockConnection.query).toHaveBeenCalledWith(expectedQuery);
     });
 });
+
+describe("Builder, miscellaneous test cases", () => {
+    test("it formats LE use case #1", () => {
+        const builder = new Builder();
+        const query = builder.from('addresses')
+            .where('id', '>=', 1)
+            .whereNotNull('phone_number')
+            .where('phone_number', 'like', 'eyJ%')
+            .toSql();
+
+        expect(query).toBe(`SELECT * FROM "addresses" WHERE "id" >= 1 AND "phone_number" IS NOT NULL AND "phone_number" LIKE 'eyJ%'`);
+    });
+});
